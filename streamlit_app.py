@@ -29,9 +29,6 @@ st.dataframe(sales_by_month)
 # Here the grouped months are the index and automatically used for the x axis
 st.line_chart(sales_by_month, y="Sales")
 
-# Ensure Order_Date is in datetime format
-df["Order_Date"] = pd.to_datetime(df["Order_Date"])
-
 # Dropdown to select a Category
 category = st.selectbox("Select a Category:", df["Category"].unique())
 
