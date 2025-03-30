@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import math
 
-st.title("Data App Assignment, on March 17th")
+st.title("Data App Assignment, on March 30th")
 
 st.write("### Input Data and Examples")
 df = pd.read_csv("Superstore_Sales_utf8.csv", parse_dates=True)
@@ -28,6 +28,46 @@ st.dataframe(sales_by_month)
 
 # Here the grouped months are the index and automatically used for the x axis
 st.line_chart(sales_by_month, y="Sales")
+
+# Ensure Order_Date is in datetime format
+df["Order_Date"] = pd.to_datetime(df["Order_Date"])
+
+# Dropdown to select a Category
+category = st.selectbox("Select a Category:", df["Category"].unique())
+
+# Filter dataframe by selected Category
+filtered_df = df[df["Category"] == category]
+
+# Multi-select for Sub-Category (only in selected Category)
+sub_categories = st.multiselect("Select Sub-Categories:", filtered_df["Sub_Category"].unique())
+
+# Filter data based on selected Sub-Categories
+selected_df = filtered_df[filtered_df["Sub_Category"].isin(sub_categories)]
+
+# Ensure filtered data is not empty before plotting
+if not selected_df.empty:
+    # Aggregate sales by month for selected items
+    sales_by_month = selected_df.set_index("Order_Date").resample('M').sum()
+
+    # Line chart for selected items
+    st.line_chart(sales_by_month, y="Sales")
+
+    # Calculate Metrics
+    total_sales = selected_df["Sales"].sum()
+    total_profit = selected_df["Profit"].sum()
+    profit_margin = (total_profit / total_sales) * 100 if total_sales else 0
+
+    # Overall average profit margin
+    overall_profit_margin = (df["Profit"].sum() / df["Sales"].sum()) * 100
+
+    # Display Metrics
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Total Sales", f"${total_sales:,.2f}")
+    col2.metric("Total Profit", f"${total_profit:,.2f}")
+    col3.metric("Profit Margin (%)", f"{profit_margin:.2f}%", delta=f"{profit_margin - overall_profit_margin:.2f}%")
+
+else:
+    st.write("No data available for the selected filters.")
 
 st.write("## Your additions")
 st.write("### (1) add a drop down for Category (https://docs.streamlit.io/library/api-reference/widgets/st.selectbox)")
