@@ -44,7 +44,7 @@ selected_df = filtered_df[filtered_df["Sub_Category"].isin(sub_categories)]
 # Ensure filtered data is not empty before plotting
 if not selected_df.empty:
     # Aggregate sales by month for selected items
-    sales_by_month = selected_df.resample('M').sum()
+    sales_by_month = selected_df.set_index("Order_Date").resample('M').sum()
 
     # Line chart for selected items
     st.line_chart(sales_by_month, y="Sales")
